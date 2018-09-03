@@ -1,0 +1,73 @@
+---
+title: "Basic Inferential Data Analysis Instructions"
+author: "vyndk"
+date: "September 3, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+In this project, we shall analyze the ToothGrowth data in the R datasets package.
+# Load data and do some exploratory analysis
+Now we load the data and do some exploratory analysis.
+```{r, message=FALSE}
+library(tidyverse)
+data("ToothGrowth")
+# view size of data
+dim(ToothGrowth)
+# view some top data
+head(ToothGrowth)
+# explore data type for each columns
+str(ToothGrowth)
+```
+We can see that dose may be a factor variable. So we convert it to factor
+```{r, message=FALSE}
+ToothGrowth$dose<-as.factor(ToothGrowth$dose)
+```
+## Basic summary of the data
+Now we summary the data
+```{r, message=FALSE}
+#summay data
+summary(ToothGrowth)
+```
+We plot the tooth len by dose and group by supp
+```{r, message=FALSE}
+ggplot(aes(x=dose, y=len), data=ToothGrowth) + 
+    geom_boxplot(aes(fill=dose)) + 
+    labs(x = "Dose", y= "Len", title = "Tooth Len vs Dose by Supp") + 
+    facet_grid(. ~ supp)
+```
+## Compare tooth growth by supp
+ We shall conpare tooth growth by supp
+We have 2 group: group 1 is tooth growth with OJ supp, group 2 is tooth growth with VC supp
+H0 : two group have the same mean
+H: two group have diffrent mean
+We apply T-test for this test
+```{r, message=FALSE}
+t.test(len~supp,data=ToothGrowth)
+```
+Here we can see that p-value greater than the significance level of 0.05 and the confidence interval contains zero. Therefore, it is not enough evidence to reject the H0. We can say that supp has no impact on tooth growth.
+## Conpare tooth growth by dose
+Compare tooth grouth with each pair of dose: 0.5 and 1, 0.5 and 2, 1 and 2
+1. Compare tooth growth with dose is 0.5 and 1
+```{r, message=FALSE}
+sub_data <- subset(ToothGrowth, ToothGrowth$dose %in% c(0.5,1))
+t.test(len~dose,data=sub_data)
+```
+2. Compare tooth growth with dose is 0.5 and 2.0
+```{r, message=FALSE}
+sub_data <- subset(ToothGrowth, ToothGrowth$dose %in% c(0.5,2))
+t.test(len~dose,data=sub_data)
+```
+3. Compare tooth growth with dose is 1.0 and 2.0
+```{r, message=FALSE}
+sub_data <- subset(ToothGrowth, ToothGrowth$dose %in% c(1,2))
+t.test(len~dose,data=sub_data)
+```
+We can see that all p-values are smaller than the significance level of 0.05 and the confidence interval of each test does not cross over zero. Therefore we can say that dose has effect on tooth grow
+
+## Conclusion
+Given the assumptions that the sample is representative of the population and the oberservations are independent, we can conclude that supp has no effect on tooth growth while dose has impact on tooth growth.
